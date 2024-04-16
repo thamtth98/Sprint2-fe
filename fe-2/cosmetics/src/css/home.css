@@ -1,0 +1,53 @@
+.display-3 {
+    font-size:300px !important;
+}
+.carousel-container {
+    position: relative;
+  }
+  
+  .custom-carousel {
+    position: relative;
+  }
+  
+  .carousel-image {
+    width: 100%;
+  }
+  
+  .carousel-caption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .card-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 10px;
+  }
+  
+  .carousel-control-prev,
+  .carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-size: 2rem;
+  }
+  
+  .carousel-control-prev {
+    left: 10px;
+  }
+  
+  .carousel-control-next {
+    right: 10px;
+  }
+  

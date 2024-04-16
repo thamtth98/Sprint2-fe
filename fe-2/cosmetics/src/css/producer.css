@@ -1,0 +1,12 @@
+.alpha-bet > a{
+    text-decoration: none;
+    color: rgb(235, 105, 127);
+}
+.alpha-bet > a:hover{
+    background-color: antiquewhite;
+    color: rgb(211, 59, 85);
+    border-radius: 10%;
+}
+.link-producer{
+    text-decoration: none;
+}

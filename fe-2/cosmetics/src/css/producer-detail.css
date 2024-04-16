@@ -1,0 +1,28 @@
+.img-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .img-normal,
+  .img-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s ease;
+  }
+  
+  .img-normal {
+    background-image: url('link-to-normal-image.jpg');
+  }
+  
+  .img-hover {
+    background-image: url('link-to-hover-image.jpg');
+    opacity: 0;
+  }
+  
+  .img-container:hover .img-hover {
+    opacity: 1;
+  }
