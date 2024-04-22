@@ -12,6 +12,7 @@ import * as Icon from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import "../../css/header.css";
 
+
 function Header({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -26,25 +27,26 @@ function Header({ onSearch }) {
     <>
       <header>
         <div className="top-header">
-          <div class="container py-2">KYO Authentic - Shop Mỹ Phẩm, Son Môi, Nước Hoa Chính Hãng</div>
+          <div class="container py-2">LUNA cosmetic - Shop Mỹ Phẩm, Son Môi, Nước Hoa Chính Hãng</div>
         </div>
         <div className="header-nav-top">
           <div class="container py-2 ">
-            <div class="row py-4 pb-0 pb-sm-4 align-items-center ">
-              <div class="col-sm-5 col-lg-3 text-center text-sm-start ">
+            <div class="row pb-0 align-items-center ">
+              <div class="col-sm-5 col-lg-2 text-center text-sm-start ">
                 <div class="main-logo">
-                  <a href="index.html">
+                  <Link to={"/"}>
                     <img
-                      src="https://kyo.vn/wp-content/uploads/2018/12/logo-kyo.png"
+                      src="images/logo5.png"
                       alt="logo"
                       class="img-fluid"
-                      width="500px"
+                      width="150px"
+                      height="150px"                    
                     />
-                  </a>
+                  </Link>
                 </div>
               </div>
 
-              <div class="col-sm-5 col-lg-3 offset-sm-2 offset-md-0 ">
+              <div class="col-sm-5 col-lg-4 offset-sm-2 offset-md-0 ">
                 <div class="search-bar border rounded-2 px-3 border-dark-subtle">
                   <form
                     id="search-form"
@@ -58,7 +60,7 @@ function Header({ onSearch }) {
                       class="form-control border-0 bg-transparent"
                       value={searchTerm}
                       onChange={handleChange}
-                      placeholder="Tìm sản phẩm, thương hiệu"
+                      placeholder="Tìm kiếm sản phẩm, thương hiệu của bạn"
                     />
                     <button type="submit">
                       <i class="bi bi-search-heart"></i>
@@ -68,7 +70,7 @@ function Header({ onSearch }) {
               </div>
               <div class="col-sm-3 col-lg-2 offset-sm-0 offset-md-0 d-none d-lg-block">
                 <img src="https://kyo.vn/wp-content/uploads/2018/03/fb-icon.png" height="35px"></img>
-                <span className="ms-1 item-header-top">fb.com/kyoauthentic</span>
+                <span className="ms-1 item-header-top">fb.com/LunaCosmetic</span>
               </div>
               <div class="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
                 <img src="https://kyo.vn/wp-content/uploads/2018/03/icon-ribbon.png" height="35px"></img>
@@ -76,7 +78,7 @@ function Header({ onSearch }) {
               </div>
               <div class="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
                 <img src="https://kyo.vn/wp-content/uploads/2018/03/icon-phone-1.png" height="35px"></img>
-                <span className="item-header-top">098.141.7890</span>
+                <span className="item-header-top">0905.123.456</span>
               </div>
            
 
@@ -87,7 +89,7 @@ function Header({ onSearch }) {
         <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
           <Container>
             {/* //danh mục */}
-            <DropdownButton
+            {/* <DropdownButton
               id="dropdown-basic-button"
               title="Danh mục sản phẩm"
             >
@@ -112,7 +114,7 @@ function Header({ onSearch }) {
               <Dropdown.Item href="#/action-3">
                 Chăm sóc tóc và da đầu
               </Dropdown.Item>
-            </DropdownButton>
+            </DropdownButton> */}
             {/* <Navbar.Brand href="#">Danh mục</Navbar.Brand> */}
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
@@ -135,15 +137,17 @@ function Header({ onSearch }) {
                 <Nav.Link href="#">Bán chạy</Nav.Link>
               </Nav>
               <Nav>
-                <Nav.Link href="#">GET PRO</Nav.Link>
+                {/* <Nav.Link href="#">GET PRO</Nav.Link> */}
                 <Nav.Link href="#">
+                  <Link to={"/login"}>
                   <i class="bi bi-person"></i>
+                  </Link>
                 </Nav.Link>
+                
                 <Nav.Link href="#">
-                  <i className="fas fa-heart"></i>
-                </Nav.Link>
-                <Nav.Link href="#">
-                  <i class="bi bi-bag-heart"></i>
+                  <Link to={"/cart"}>
+                  <i class="bi bi-bag-heart"></i>                
+                  </Link>
                 </Nav.Link>
               </Nav>
             </Navbar.Collapse>

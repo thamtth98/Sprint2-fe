@@ -1,4 +1,4 @@
-.display-3 {
+/* .display-3 {
     font-size:300px !important;
 }
 .carousel-container {
@@ -49,5 +49,13 @@
   
   .carousel-control-next {
     right: 10px;
+  } */
+  .btn-custom{
+    background-color: rgb(240, 90, 115) ;
+    color: white;
+  }
+  .btn-custom:hover{
+    background-color: rgb(241, 130, 149);
+    color: black;
   }
   

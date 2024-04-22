@@ -1,7 +1,7 @@
 .my-card {
     margin: 5px;
     transition: transform 0.3s, border-color 0.3s; /* Thêm transition cho border-color */
-    border: 1px solid transparent; /* Đặt border mặc định là trong suốt */
+    border: 2px solid transparent; /* Đặt border mặc định là trong suốt */
   }
   
   .my-card:hover {

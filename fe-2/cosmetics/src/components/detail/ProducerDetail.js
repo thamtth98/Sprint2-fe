@@ -124,14 +124,14 @@ function ProducerDetail() {
 
           <div className="col-md-9 col-lg-9 my-4">
             <div>
-              <h5>HÀNG GÌ ĐÓ</h5>
-              <div style={{ backgroundColor: `#ffeaf0` }} className="p-2 ">
+              <h5>XEM SẢN PHẨM</h5>
+              {/* <div style={{ backgroundColor: `#ffeaf0` }} className="p-2 ">
                 Sắp xếp
                 <button className="ms-2 border-0">Mới nhất</button>
                 <button className="ms-2">Bán chạy</button>
                 <button className="ms-2">Giá thấp đến cao</button>
                 <button className="ms-2">Giá cao đến thấp</button>
-              </div>
+              </div> */}
             </div>
 
             {/* card */}
@@ -140,18 +140,20 @@ function ProducerDetail() {
                 {pageProduct && pageProduct.content ? (
                   pageProduct.content.map((item) => (
                     <Col md={3} className="p-0">
+                      <Link to={`/product/${item.id}`}>
                       <Card className="my-card">
                         <div className="img-container">
-                          <Card.Img
+                          {/* <Card.Img
                             variant="top"
                             src={item.imageList.split(",")[0]}
-                          />
+                          /> */}
                         </div>
                         <Card.Body>
                           <Card.Title>{item.product.name}</Card.Title>
                           <Card.Text>{item.size.name}</Card.Text>
                         </Card.Body>
                       </Card>
+                      </Link>
                     </Col>
                   ))
                 ) : (
