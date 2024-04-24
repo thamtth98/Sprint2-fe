@@ -35,3 +35,11 @@ export const getAllAccount = async ()=>{
       console.log(e);
   }
 }
+export const getProductSameType = async (id)=>{
+  try{
+      const res = await axios.get(`http://localhost:8080/product/type/${id}`);
+      return res.data;
+  }catch(e){
+      console.log(e);
+  }
+}

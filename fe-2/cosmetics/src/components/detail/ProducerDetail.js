@@ -5,6 +5,7 @@ import { Card, Container, Row, Col } from "react-bootstrap";
 import "../../css/list.css";
 import * as productService from "../../service/productService";
 import { Link, useParams } from "react-router-dom";
+import Pagination from "react-bootstrap/Pagination";
 
 function ProducerDetail() {
   useEffect(() => {
@@ -14,14 +15,13 @@ function ProducerDetail() {
   const { id } = useParams();
   const initPage = {
     page: 0,
-    size: 4,
+    size: 8,
     nameSearch: "",
     idProducer: id,
     idType: -1,
     idSize: -1,
   };
   const [pageProduct, setPageProduct] = useState(initPage);
- 
 
   useEffect(() => {
     setPageProduct((initPage) => ({
@@ -34,11 +34,18 @@ function ProducerDetail() {
     getAllProduct({ ...initPage, idProducer: id });
   }, [id]);
 
+  //page
+  const handleChangePage = (page) => {
+    const data = { ...initPage, page };
+    setPageProduct(data);
+    getAllProduct(data);
+  };
 
   const getAllProduct = async (pageProduct) => {
     try {
       const res = await productService.getAll(pageProduct);
       setPageProduct(res);
+      console.log(res);
     } catch (e) {
       console.log(e);
     }
@@ -141,128 +148,57 @@ function ProducerDetail() {
                   pageProduct.content.map((item) => (
                     <Col md={3} className="p-0">
                       <Link to={`/product/${item.id}`}>
-                      <Card className="my-card">
-                        <div className="img-container">
-                          {/* <Card.Img
-                            variant="top"
-                            src={item.imageList.split(",")[0]}
-                          /> */}
-                        </div>
-                        <Card.Body>
-                          <Card.Title>{item.product.name}</Card.Title>
-                          <Card.Text>{item.size.name}</Card.Text>
-                        </Card.Body>
-                      </Card>
+                        <Card className="my-card">
+                          <div className="img-container">
+                            <Card.Img
+                              variant="top"
+                              src={item.cosmeticsSize.imageList}
+                            />
+                          </div>
+                          <Card.Body>
+                            <Card.Title>{item.product.name}</Card.Title>
+                            <Card.Text>{item.size.name}</Card.Text>
+                          </Card.Body>
+                        </Card>
                       </Link>
                     </Col>
                   ))
                 ) : (
                   <div>Không có</div>
                 )}
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                {/* Repeat for other cards */}
-              </Row>
-              <Row>
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col md={3} className="p-0">
-                  <Card className="my-card">
-                    <div className="img-container">
-                      <Card.Img
-                        variant="top"
-                        src="https://via.placeholder.com/150"
-                      />
-                    </div>
-                    <Card.Body>
-                      <Card.Title>Card 1</Card.Title>
-                      <Card.Text>This is a sample card.</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                {/* Repeat for other cards */}
               </Row>
             </Container>
+            <div className="text-center mt-5">
+            {pageProduct && pageProduct.content && (
+              <Pagination>
+                <Pagination.First
+                  disabled={pageProduct.number <= 0}
+                  onClick={() => handleChangePage(0)}
+                />
+                <Pagination.Prev
+                  disabled={pageProduct.number <= 0}
+                  onClick={() => handleChangePage(pageProduct.number - 1)}
+                />
+                {Array.from(Array(pageProduct.totalPages)).map((e, i) => (
+                  <Pagination.Item
+                    active={pageProduct.number === i}
+                    key={i + 1}
+                    onClick={() => handleChangePage(i)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  disabled={pageProduct.number >= pageProduct.totalPages - 1}
+                  onClick={() => handleChangePage(pageProduct.number + 1)}
+                />
+                <Pagination.Last
+                  disabled={pageProduct.number >= pageProduct.totalPages - 1}
+                  onClick={() => handleChangePage(pageProduct.totalPages - 1)}
+                />
+              </Pagination>
+            )}
+            </div>
           </div>
         </div>
       </div>

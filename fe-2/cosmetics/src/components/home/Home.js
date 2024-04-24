@@ -24,41 +24,14 @@ function Home() {
     idSize: -1,
   };
   const [pageProduct, setPageProduct] = useState(initPage);
-  const [imageLinks, setImageLinks] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     document.title = "Trang chủ";
   }, []);
-  const [productImages, setProductImages] = useState([]);
 
   useEffect(() => {
     getAllProduct(pageProduct);
   }, []);
-  useEffect(() => {
-    // Lấy danh sách sản phẩm từ trang Home (giả sử pageProduct chứa thông tin sản phẩm)
-    // ...
-
-    // Duyệt qua danh sách sản phẩm
-    if (pageProduct.content) {
-      (pageProduct.content).map((item) => {
-        const productId = item.id;
-        console.log(item);
-        console.log(productId);
-        const imageListRef = ref(storage, `images/${productId}`);
-        console.log(imageListRef);
-        // Lấy danh sách URL hình ảnh từ Firebase
-        listAll(imageListRef).then((res) => {
-          res.items.forEach((item) => {
-            getDownloadURL(item).then((url) => {
-              // Thêm URL hình ảnh vào biến productImages
-              setProductImages((prev) => [...prev, url]);
-            });
-          });
-        });
-      });
-    }
-  }, [pageProduct]);
-  const firstImage = productImages[0];
+  
 
   const getAllProduct = async (pageProduct) => {
     try {
@@ -76,6 +49,9 @@ function Home() {
     getAllProduct(data);
   };
   // firebase
+
+
+  
 
   return (
     <>
@@ -208,15 +184,12 @@ function Home() {
                 <Col md={3} className="p-0" key={item.id}>
                   <Link to={`product/${item.id}`}>
                     <Card className="my-card">
-                      <div className="img-container">
-                      {console.log(productImages)}
-                          
+                      <div className="img-container">                          
                             <img
-                              src={firstImage}
+                              src={item.cosmeticsSize.imageList}
                               alt={`hi`}
                               style={{ width: "100%", height: "auto" }}
-                            />
-                          
+                            />                         
                       
                       </div>
                       <Card.Body>
@@ -253,11 +226,13 @@ function Home() {
                 <Col md={3} className="p-0">
                   <Link to={`product/${item.id}`}>
                     <Card className="my-card">
-                      <div className="img-container">
-                        {/* <Card.Img
-                          variant="top"
-                          src={item.cosmeticsSize.imageList.split(",")[0]}
-                        /> */}
+                    <div className="img-container">                          
+                            <img
+                              src={item.cosmeticsSize.imageList}
+                              alt={`hi`}
+                              style={{ width: "100%", height: "auto" }}
+                            />                         
+                      
                       </div>
                       <Card.Body>
                         <Card.Title>{item.product.name}</Card.Title>

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import * as productService from "../../service/productService";
 import Header from "../home/Header";
 import Footer from "../home/Footer";
-import { Carousel, Card, Button } from "react-bootstrap";
+import { Carousel, Card, Button, Col } from "react-bootstrap";
 import { storage } from "../../config/fireBaseConfig";
-import { ref, uploadBytes, listAll,getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
+import "../../css/product.css";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
 function ProductDetail() {
   useEffect(() => {
@@ -20,6 +23,7 @@ function ProductDetail() {
   });
 
   const [cartItemCount, setCartItemCount] = useState(0);
+
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
@@ -54,9 +58,10 @@ function ProductDetail() {
 
   const [product, setProduct] = useState();
 
+  //lấy product theo id
   useEffect(() => {
     getProductAddToCart();
-  }, []);
+  }, [id]);
 
   const getProductAddToCart = async () => {
     const res = await productService.getProductAddToCart(id);
@@ -87,19 +92,67 @@ function ProductDetail() {
       .replace("₫", "VNĐ");
   };
 
+  //lấy product cùng loại
+  const [productSameType, setProductSameType] = useState([]);
+  useEffect(() => {
+    getProductSameType();
+  }, []);
+
+  const getProductSameType = async () => {
+    const res = await productService.getProductSameType(id);
+    console.log(res);
+    setProductSameType(res);
+  };
+
   //firebase
   const [productImages, setProductImages] = useState([]);
   const imageListRef = ref(storage, `images/${id}`);
 
+  // const navigate = useNavigate();
+  // function extractIdFromLocation(location) {
+  //   if (location && location.pathname) {
+  //     const path = location.pathname;
+  //     const parts = path.split('/');
+  //     return parts[parts.length - 1];
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   const id = extractIdFromLocation(navigate); // Hàm để lấy id từ đường dẫn (ví dụ: "/product/2" -> id = 2)
+  //   const imageListRef = ref(storage, `images/${id}`);
+
+  //   listAll(imageListRef).then((res) => {
+  //     const urls = [];
+  //     res.items.forEach((item) => {
+  //       getDownloadURL(item).then((url) => {
+  //         urls.push(url);
+  //       });
+  //     });
+  //     setProductImages(urls);
+  //   });
+  // }, [navigate]);
   useEffect(() => {
     listAll(imageListRef).then((res) => {
-      res.items.forEach((item)=>{
-        getDownloadURL(item).then((url)=>{
-          setProductImages((prev)=>[...prev,url]);
-        })
-      })
+      console.log(res);
+      res.items.forEach((item) => {
+        console.log(item);
+        getDownloadURL(item).then((url) => {
+          setProductImages((prev) => [...prev, url]);
+        });
+      });
     });
-  },[]);
+  }, []);
+  //detail image
+  const [imgIndex, setImgIndex] = useState(0);
+
+  const handleSelectImage = (selectedIndex) => {
+    setImgIndex(selectedIndex);
+  };
+  //title sp tương tự
+  function handleMouseOver(color, size) {
+    const textContainer = document.getElementById("name-same-type");
+    textContainer.innerHTML = `Màu: ${color}-Size: ${size}`;
+  }
 
   return (
     <>
@@ -110,10 +163,46 @@ function ProductDetail() {
           <div className="d-flex">
             {product && (
               <>
-                <div className="col-4">
-                  <section id="banner">
-                    <div className="container">
-                      <Carousel>
+                <div className="col-lg-9">
+                  <div className="d-flex">
+                    <div className="col-lg-7 col-md-12">
+                      <section id="banner">
+                        <div className="container" id="detail-product">
+                          <Carousel
+                            interval={null}
+                            indicators={false}
+                            activeIndex={imgIndex}
+                            onSelect={handleSelectImage}
+                          >
+                            {productImages.map((imagePath, i) => (
+                              <Carousel.Item key={i}>
+                                <img
+                                  className="d-block w-100"
+                                  src={imagePath}
+                                  alt="product"
+                                />
+                              </Carousel.Item>
+                            ))}
+                          </Carousel>
+                          <ol className="d-flex p-0">
+                            {productImages.map((imagePath, i) => (
+                              <li
+                                style={{ listStyleType: "none" }}
+                                key={i}
+                                onClick={() => handleSelectImage(i)}
+                                className={i === imgIndex ? "active" : ""}
+                              >
+                                <img
+                                  className="mx-3 shadow rounded-1"
+                                  src={imagePath}
+                                  style={{ width: "100px", height: "100px" }}
+                                  alt="product"
+                                />
+                              </li>
+                            ))}
+                          </ol>
+
+                          {/* <Carousel>
                         {productImages.map((image, index) => (
                           <Carousel.Item>
                             <img
@@ -123,71 +212,152 @@ function ProductDetail() {
                             />
                           </Carousel.Item>
                         ))}
-                      </Carousel>
+                      </Carousel> */}
+                        </div>
+                      </section>
                     </div>
-                  </section>
-                </div>
-                <div className="col-5 ms-3">
-                  <h4>{product.product.name}</h4>
-                  <div>{product.product.description}</div>
-                  {/* <h3 style={{ color: "red" }}>
+                    <div className="col-lg-5 col-md-12">
+                      <h4>{product.product.name}</h4>
+                      <div>{product.product.description}</div>
+                      {/* <h3 style={{ color: "red" }}>
                     {formattedPrice(product.product.price)}
                   </h3> */}
-                  <span className="me-3">Số lượng: </span>
-                  <button
-                    style={{
-                      backgroundColor: "white",
-                      border: "1px solid #ccc",
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                      marginRight: "5px",
-                      borderRadius: "5px",
-                    }}
-                    onClick={decreaseQuantity}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    value={count}
-                    onChange={handleQuantityChange}
-                    style={{ width: "40px" }}
-                    min="1"
-                  ></input>
-                  {/* <span style={{ margin: "0 10px" }}>1</span> */}
-                  <button
-                    style={{
-                      backgroundColor: "white",
-                      border: "1px solid #ccc",
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                      marginRight: "5px",
-                      borderRadius: "5px",
-                    }}
-                    onClick={increCount}
-                  >
-                    +
-                  </button>
+                      <div>
+                        {productSameType && productSameType.length > 1 && (
+                          <>
+                            <h6>Sản phẩm cùng loại:</h6>
+                            <div id="name-same-type">
+                              Các sản phẩm cùng loại
+                            </div>
+                          </>
+                        )}
 
-                  <div className="mt-3">
-                    <button
-                      className="btn btn-custom"
-                      onClick={() => addToCart(product)}
+                        <div className="d-flex">
+                          {productSameType &&
+                            productSameType.length > 1 &&
+                            productSameType.map((item, index) => (
+                              <>
+                                <Col
+                                  key={index}
+                                  md={3}
+                                  className="p-0"
+                                  title={`Màu: ${item.product.color.name}-Size: ${item.size.name}`}
+                                  onMouseOver={() =>
+                                    handleMouseOver(
+                                      item.product.color.name,
+                                      item.size.name
+                                    )
+                                  }
+                                >
+                                  <a href={`/product/${item.id}`}>
+                                    <Card className="my-card">
+                                      <div className="img-container">
+                                        <Card.Img
+                                          variant="top"
+                                          src={item.cosmeticsSize.imageList}
+                                        />
+                                      </div>
+                                    </Card>
+                                  </a>
+                                </Col>
+                              </>
+                            ))}
+                        </div>
+                      </div>
+                      <span className="me-3">Số lượng: </span>
+                      <button
+                        style={{
+                          backgroundColor: "white",
+                          border: "1px solid #ccc",
+                          padding: "5px 10px",
+                          cursor: "pointer",
+                          marginRight: "5px",
+                          borderRadius: "5px",
+                        }}
+                        onClick={decreaseQuantity}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        value={count}
+                        onChange={handleQuantityChange}
+                        style={{ width: "40px" }}
+                        min="1"
+                      ></input>
+                      {/* <span style={{ margin: "0 10px" }}>1</span> */}
+                      <button
+                        style={{
+                          backgroundColor: "white",
+                          border: "1px solid #ccc",
+                          padding: "5px 10px",
+                          cursor: "pointer",
+                          marginRight: "5px",
+                          borderRadius: "5px",
+                        }}
+                        onClick={increCount}
+                      >
+                        +
+                      </button>
+
+                      <div className="mt-3">
+                        <button
+                          className="btn btn-custom"
+                          onClick={() => addToCart(product)}
+                        >
+                          Thêm vào giỏ hàng
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <br></br>
+                  {/* giới thiệu sản phẩm */}
+                  <div className="">
+                    <Tabs
+                      defaultActiveKey="profile"
+                      id="uncontrolled-tab-example"
+                      className="mb-3"
                     >
-                      Thêm vào giỏ hàng
-                    </button>
+                      <Tab eventKey="home" title="Giới thiệu">
+                        <h3>Giới thiệu sản phẩm:</h3>
+
+                        <div>{product.product.description}</div>
+                        <div className="text-center">
+                          <img src={productImages[0]} width="60%"></img>
+                          <div>
+                            <h3>Thông số sản phẩm</h3>
+                            <table class="table table-bordered">
+                              <thead>
+                                <tr>
+                                  <td scope="col" className="col-4">Thương hiệu</td>
+                                  <td scope="col" className="col-8">{product.product.producer.name}</td>                                 
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td scope="col" className="col-4">Xuất xứ</td>
+                                  <td scope="col" className="col-8">{product.product.producer.origin}</td>                              
+                                 
+                                </tr>                                
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </Tab>
+                      <Tab eventKey="profile" title="Thành phần">
+                        <h3>Thành phần sản phẩm</h3>
+                        <div>{product.product.ingredient}</div>
+                      </Tab>
+                    </Tabs>
                   </div>
                 </div>
-                <div className="col-3">quảng cáo</div>
+                <div className="col-lg-3 d-none d-md-block">
+                  <h4>Có thể bạn quan tâm</h4>
+                </div>
               </>
             )}
           </div>
           <p>Total Items: {cartItemCount}</p>
-          <ul>
-            {/* {cart.map((item, index) => (
-            <li key={index}>{item.name} - Quantity: {item.quantity}</li>
-          ))} */}
-          </ul>
         </div>
       </div>
       <Footer></Footer>

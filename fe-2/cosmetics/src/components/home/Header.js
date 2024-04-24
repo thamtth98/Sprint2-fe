@@ -70,7 +70,7 @@ function Header({ onSearch }) {
               </div>
               <div class="col-sm-3 col-lg-2 offset-sm-0 offset-md-0 d-none d-lg-block">
                 <img src="https://kyo.vn/wp-content/uploads/2018/03/fb-icon.png" height="35px"></img>
-                <span className="ms-1 item-header-top">fb.com/LunaCosmetic</span>
+                <span className="ms-1 item-header-top">LunaCosmetic</span>
               </div>
               <div class="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
                 <img src="https://kyo.vn/wp-content/uploads/2018/03/icon-ribbon.png" height="35px"></img>
