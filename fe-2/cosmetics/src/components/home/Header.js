@@ -11,9 +11,10 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import * as Icon from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import "../../css/header.css";
+import * as myLogo from "../../img/logo5.png" ;
 
 
-function Header({ onSearch }) {
+function Header({ onSearch, logo }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleChange = (event) => {
@@ -36,7 +37,7 @@ function Header({ onSearch }) {
                 <div class="main-logo">
                   <Link to={"/"}>
                     <img
-                      src="images/logo5.png"
+                      src="../images/logo5.png"
                       alt="logo"
                       class="img-fluid"
                       width="150px"

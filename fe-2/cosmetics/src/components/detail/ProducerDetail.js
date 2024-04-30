@@ -69,7 +69,9 @@ function ProducerDetail() {
 
   return (
     <>
-      <Header />
+   
+        <Header/>
+      
       <div className="container py-2">
         <div className="d-flex">
           <div className="col-md-2 col-lg-2 my-4">
@@ -120,6 +122,19 @@ function ProducerDetail() {
               <hr></hr>
             </div>
             <div>
+              {pageProduct && pageProduct.content &&  (
+                <>
+                  <h4>MÀU SẮC</h4>
+                </>                              
+              )}
+              {pageProduct && pageProduct.content &&  pageProduct.content.map((item,index) => (
+                <div key={index}>
+                <Link to={`/producer/list/${item.id}`}>{item.cosmeticsSize.product.color.name}</Link>
+                </div>
+              ))}
+            </div>
+            <hr></hr>
+            <div>
               <h4>LOẠI DA</h4>
               <div>Da thường/Mọi loại da</div>
               <div>Da dầu, hỗn hợp dầu</div>
@@ -169,35 +184,35 @@ function ProducerDetail() {
               </Row>
             </Container>
             <div className="text-center mt-5">
-            {pageProduct && pageProduct.content && (
-              <Pagination>
-                <Pagination.First
-                  disabled={pageProduct.number <= 0}
-                  onClick={() => handleChangePage(0)}
-                />
-                <Pagination.Prev
-                  disabled={pageProduct.number <= 0}
-                  onClick={() => handleChangePage(pageProduct.number - 1)}
-                />
-                {Array.from(Array(pageProduct.totalPages)).map((e, i) => (
-                  <Pagination.Item
-                    active={pageProduct.number === i}
-                    key={i + 1}
-                    onClick={() => handleChangePage(i)}
-                  >
-                    {i + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next
-                  disabled={pageProduct.number >= pageProduct.totalPages - 1}
-                  onClick={() => handleChangePage(pageProduct.number + 1)}
-                />
-                <Pagination.Last
-                  disabled={pageProduct.number >= pageProduct.totalPages - 1}
-                  onClick={() => handleChangePage(pageProduct.totalPages - 1)}
-                />
-              </Pagination>
-            )}
+              {pageProduct && pageProduct.content && (
+                <Pagination>
+                  <Pagination.First
+                    disabled={pageProduct.number <= 0}
+                    onClick={() => handleChangePage(0)}
+                  />
+                  <Pagination.Prev
+                    disabled={pageProduct.number <= 0}
+                    onClick={() => handleChangePage(pageProduct.number - 1)}
+                  />
+                  {Array.from(Array(pageProduct.totalPages)).map((e, i) => (
+                    <Pagination.Item
+                      active={pageProduct.number === i}
+                      key={i + 1}
+                      onClick={() => handleChangePage(i)}
+                    >
+                      {i + 1}
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Next
+                    disabled={pageProduct.number >= pageProduct.totalPages - 1}
+                    onClick={() => handleChangePage(pageProduct.number + 1)}
+                  />
+                  <Pagination.Last
+                    disabled={pageProduct.number >= pageProduct.totalPages - 1}
+                    onClick={() => handleChangePage(pageProduct.totalPages - 1)}
+                  />
+                </Pagination>
+              )}
             </div>
           </div>
         </div>

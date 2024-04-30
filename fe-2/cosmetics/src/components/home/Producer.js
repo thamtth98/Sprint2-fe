@@ -49,7 +49,7 @@ function Producer() {
   };
   return (
     <>
-      <Header />
+      <Header/>
       <div className="container py-2">
         <h5 className="m-2">Thương hiệu</h5>
         <hr></hr>
@@ -102,7 +102,7 @@ function Producer() {
                     {group.map((producer, index) => (
                       <Col md={2} className="p-0" key={index}>
                         <Link
-                          to={`/producer/list/${producer.id}`}
+                          to={`/list/${producer.id}`}
                           className="link-producer"
                         >
                           <Card className="my-card">
