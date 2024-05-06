@@ -3,65 +3,87 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import SplitButton from "react-bootstrap/SplitButton";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import * as Icon from "react-bootstrap-icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../../css/header.css";
-import * as myLogo from "../../img/logo5.png" ;
-
+import * as myLogo from "../../img/logo5.png";
+import { useSearchTermContext } from "../search/SearchContext";
+import { Logout } from "../login/Logout";
+import { toast } from "react-toastify";
 
 function Header({ onSearch, logo }) {
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  //search
+  const { searchTerm, setSearchTerm } = useSearchTermContext();
+  const [search, setSearch] = useState("");
 
   const handleChange = (event) => {
-    setSearchTerm(event.target.value);
-    console.log(event);
+    setSearch(event.target.value);
   };
-  const handleSubmit = () => {
-    onSearch(searchTerm);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    navigate("/list");
+    setSearchTerm(search);
+    console.log(searchTerm);
+  };
+  //logout
+  const onLogoutHandler = () => {
+    const idAccount = localStorage.getItem("id");
+    if (idAccount) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("id");
+      localStorage.removeItem("cart");
+      navigate("/");
+      toast.success("Đăng xuất thành công!!", {
+        className: "custom-toast-success",
+      });
+    }
   };
   return (
     <>
       <header>
         <div className="top-header">
-          <div class="container py-2">LUNA cosmetic - Shop Mỹ Phẩm, Son Môi, Nước Hoa Chính Hãng</div>
+          <div className="container py-2">
+            LUNA cosmetic - Shop Mỹ Phẩm, Son Môi, Nước Hoa Chính Hãng
+          </div>
         </div>
         <div className="header-nav-top">
-          <div class="container py-2 ">
-            <div class="row pb-0 align-items-center ">
-              <div class="col-sm-5 col-lg-2 text-center text-sm-start ">
-                <div class="main-logo">
+          <div className="container py-2 ">
+            <div className="row pb-0 align-items-center ">
+              <div className="col-sm-5 col-lg-2 text-center text-sm-start ">
+                <div className="main-logo">
                   <Link to={"/"}>
                     <img
                       src="../images/logo5.png"
                       alt="logo"
-                      class="img-fluid"
+                      className="img-fluid"
                       width="150px"
-                      height="150px"                    
+                      height="150px"
                     />
                   </Link>
                 </div>
               </div>
 
-              <div class="col-sm-5 col-lg-4 offset-sm-2 offset-md-0 ">
-                <div class="search-bar border rounded-2 px-3 border-dark-subtle">
+              <div className="col-sm-5 col-lg-4 offset-sm-2 offset-md-0 ">
+                <div className="search-bar border rounded-2 px-3 border-dark-subtle">
                   <form
                     id="search-form"
-                    class="text-center d-flex align-items-center"
+                    className="text-center d-flex align-items-center"
                     action=""
                     method=""
                     onSubmit={handleSubmit}
                   >
                     <input
                       type="text"
-                      class="form-control border-0 bg-transparent"
-                      value={searchTerm}
+                      className="form-control border-0 bg-transparent"
                       onChange={handleChange}
-                      placeholder="Tìm kiếm sản phẩm, thương hiệu của bạn"
+                      placeholder="Tìm kiếm sản phẩm, thương hiệu"
                     />
                     <button type="submit">
                       <i class="bi bi-search-heart"></i>
@@ -69,20 +91,27 @@ function Header({ onSearch, logo }) {
                   </form>
                 </div>
               </div>
-              <div class="col-sm-3 col-lg-2 offset-sm-0 offset-md-0 d-none d-lg-block">
-                <img src="https://kyo.vn/wp-content/uploads/2018/03/fb-icon.png" height="35px"></img>
+              <div className="col-sm-3 col-lg-2 offset-sm-0 offset-md-0 d-none d-lg-block">
+                <img
+                  src="https://kyo.vn/wp-content/uploads/2018/03/fb-icon.png"
+                  height="35px"
+                ></img>
                 <span className="ms-1 item-header-top">LunaCosmetic</span>
               </div>
-              <div class="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
-                <img src="https://kyo.vn/wp-content/uploads/2018/03/icon-ribbon.png" height="35px"></img>
+              <div className="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
+                <img
+                  src="https://kyo.vn/wp-content/uploads/2018/03/icon-ribbon.png"
+                  height="35px"
+                ></img>
                 <span className="item-header-top">Chính hãng 100%</span>
               </div>
-              <div class="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
-                <img src="https://kyo.vn/wp-content/uploads/2018/03/icon-phone-1.png" height="35px"></img>
+              <div className="col-sm-3 col-lg-2 offset-sm-2 offset-md-0 d-none d-lg-block">
+                <img
+                  src="https://kyo.vn/wp-content/uploads/2018/03/icon-phone-1.png"
+                  height="35px"
+                ></img>
                 <span className="item-header-top">0905.123.456</span>
               </div>
-           
-
             </div>
           </div>
         </div>
@@ -140,23 +169,26 @@ function Header({ onSearch, logo }) {
               <Nav>
                 {/* <Nav.Link href="#">GET PRO</Nav.Link> */}
                 <Nav.Link href="#">
-                  <Link to={"/login"}>
-                  <i class="bi bi-person"></i>
+                  <Link to={"/auth/login"} >
+                    <i className="bi bi-person"></i>
                   </Link>
                 </Nav.Link>
-                
+
                 <Nav.Link href="#">
                   <Link to={"/cart"}>
-                  <i class="bi bi-bag-heart"></i>                
+                    <i className="bi bi-bag-heart"></i>
                   </Link>
+                </Nav.Link>
+                <Nav.Link href="#">
+                  <button onClick={onLogoutHandler}>Log out</button>
                 </Nav.Link>
               </Nav>
             </Navbar.Collapse>
           </Container>
         </Navbar>
 
-        <div class="container-fluid">
-          <hr class="m-0" />
+        <div className="container-fluid">
+          <hr className="m-0" />
         </div>
       </header>
     </>

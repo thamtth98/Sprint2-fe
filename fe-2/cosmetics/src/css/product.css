@@ -21,3 +21,6 @@
 #detail-product .carousel-control-next {
     margin-right: 25px;
 }
+.custom-detail{
+    flex-wrap: wrap;
+}

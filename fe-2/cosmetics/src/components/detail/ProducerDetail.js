@@ -77,12 +77,12 @@ function ProducerDetail() {
           <div className="col-md-2 col-lg-2 my-4">
             <div>
               <h5>KHOẢNG GIÁ</h5>
-              <div class="price-range m-2">
+              <div className="price-range m-2">
                 <div className="row d-flex">
                   <div className="col-5 p-0">
                     <input
                       type="number"
-                      class="form-control"
+                      className="form-control"
                       placeholder="Từ"
                     />
                   </div>
@@ -90,7 +90,7 @@ function ProducerDetail() {
                   <div className="col-5 p-0">
                     <input
                       type="number"
-                      class="form-control"
+                      className="form-control"
                       placeholder="Đến"
                     />
                   </div>
@@ -114,7 +114,7 @@ function ProducerDetail() {
               {producers &&
                 producers.map((item, index) => (
                   <div key={index}>
-                    <Link to={`/producer/list/${item.id}`}>{item.name}</Link>
+                    <Link to={`/list/${item.id}`}>{item.name}</Link>
                   </div>
                 ))}
             </div>

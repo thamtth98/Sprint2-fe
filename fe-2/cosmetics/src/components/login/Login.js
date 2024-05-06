@@ -11,48 +11,127 @@ import {
   MDBCheckbox,
   MDBIcon,
 } from "mdb-react-ui-kit";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as productService from "../../service/productService";
 import { useEffect, useState } from "react";
-import bcrypt from 'bcryptjs';
+import { Flag } from "react-bootstrap-icons";
+import { toast } from "react-toastify";
 
-function Login() {
-  
+function Login({ changeFlag }) {
   const navigate = useNavigate();
   //lấy accounts
-  const [accounts, setAccounts] = useState();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accounts, setAccounts] = useState({});
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [flag, setFlag] = useState(false);
+
 
   useEffect(() => {
-    getAllAccount();
+    if (flag) {
+      navigate("/");
+    }
+  }, [flag]);
+
+  //laasy thông tin từ lc để gửi xúng BE
+  const initDto = {
+    id: null,
+    total: 0,
+    idAccount: null,
+    idBill: null,
+    quantity: 0,
+    idCosmeticsSize: -1,
+  };
+
+  // const [cart, setCart] = useState(() => {
+  //   const savedCart = localStorage.getItem("cart");
+  //   // console.log(savedCart);
+  //   return savedCart ? JSON.parse(savedCart) : null;
+  // });
+  const [cart, setCart] = useState();
+
+  useEffect(() => {
+    const res = localStorage.getItem("cart");
+    if (res) {
+      console.log(res);
+      setCart(JSON.parse(res));
+    }
   }, []);
 
-  const getAllAccount = async () => {
+  //lấy giỏ hàng từ localStorage để gửi xúng BE
+  const [productListDto, setProducListDto] = useState(initDto);
+
+  useEffect(() => {
+    const idAccount = localStorage.getItem("id");
+    console.log(idAccount);
+    if (idAccount && cart && Array.isArray(cart)) {
+      const newListDto = cart.map((item) => {
+        console.log(item);
+        return {
+          id: null,
+          total: item.cosmeticsSize.price,
+          idAccount: idAccount,
+          idBill: null,
+          quantity: item.quantity,
+          idCosmeticsSize: item.id,
+        };
+      });
+      console.log(newListDto);
+      setProducListDto(newListDto);
+    }
+  }, []);
+
+  useEffect(() => {
+    getListCart(productListDto);
+  }, [productListDto]);
+
+  const getListCart = async (productListDto) => {
+    console.log(productListDto);
+    const idAccount = localStorage.getItem("id");
+
     try {
-      const res = await productService.getAllAccount();
-      setAccounts(res);
+      if(idAccount){
+        console.log("uuu");
+        const res = await productService.getListCart(productListDto);
+        localStorage.removeItem("cart");
+        // setPageProduct(res);
+        console.log(res);
+      }
+     
     } catch (e) {
       console.log(e);
     }
   };
-  const handleLogin = () => {
-    // Tìm tài khoản có email tương ứng trong danh sách tài khoản
-    const account = accounts.find((acc) => acc.username === username);
-    console.log(account);
 
-    // Kiểm tra nếu không tìm thấy tài khoản hoặc mật khẩu không chính xác
-    if (!account || !bcrypt.compareSync(password, account.password)) {
-      console.log('Email hoặc mật khẩu không đúng');
-      return;
+
+
+  
+  const handleLogin = async () => {
+    try {
+      const init = {
+        username: username,
+        password: password,
+      };
+      const res = await productService.loginConfirm(init);
+      setAccounts(res);
+      const listCart = localStorage.getItem("cart");
+      if (res) {
+        localStorage.setItem("id", res.id);
+        localStorage.setItem("token", res.token);
+        changeFlag();
+        navigate(-1);
+        toast.success("Đăng nhập thành công!!", {
+          className: "custom-toast-success",
+        });
+      } else {
+        toast.error("Sai mật khẩu hoặc tài khoản!!", {
+          className: "custom-toast-success",
+        });
+      }
+    } catch (e) {
+      console.log(e);
     }
-
-    // Nếu email và password chính xác, thiết lập trạng thái đăng nhập thành công
-    setIsLoggedIn(true);
-    navigate(-1);
-    console.log('Đăng nhập thành công!');
   };
+
   return (
     <>
       <MDBContainer
@@ -68,7 +147,7 @@ function Login() {
               className="my-5 display-3 fw-bold ls-tight px-3"
               style={{ color: "hsl(218, 81%, 95%)" }}
             >
-              Đăng nhập vào KYO <br />
+              Đăng nhập vào LUNA <br />
               <span style={{ color: "hsl(218, 81%, 75%)" }}>
                 - Thế giới cosmetics
               </span>
@@ -116,7 +195,7 @@ function Login() {
 
                 <MDBInput
                   wrapperClass="mb-4"
-                  label="Email"
+                  label="Tài khoản"
                   id="form3"
                   type="email"
                   value={username}
@@ -124,28 +203,27 @@ function Login() {
                 />
                 <MDBInput
                   wrapperClass="mb-4"
-                  label="Password"
+                  label="Mật khẩu"
                   id="form4"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <div className="d-flex justify-content-center mb-4">
+                {/* <div className="d-flex justify-content-center mb-4">
                   <MDBCheckbox
                     name="flexCheck"
                     value=""
                     id="flexCheckDefault"
                     label="Subscribe to our newsletter"
                   />
-                </div>
+                </div> */}
 
                 <MDBBtn className="w-100 mb-4" size="md" onClick={handleLogin}>
-            
-                  Sign up
+                  Đăng nhập
                 </MDBBtn>
 
-                <div className="text-center">
+                {/* <div className="text-center">
                   <p>or sign up with:</p>
 
                   <MDBBtn
@@ -183,7 +261,7 @@ function Login() {
                   >
                     <MDBIcon fab icon="github" size="sm" />
                   </MDBBtn>
-                </div>
+                </div> */}
               </MDBCardBody>
             </MDBCard>
           </MDBCol>

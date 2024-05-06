@@ -13,3 +13,9 @@ a{
     text-decoration: none;
     color: black;
 }
+.custom-toast-success .Toastify__progress-bar--success {
+    background-color: #ab3c74; /* Màu thanh chạy là màu hồng */
+}
+.custom-toast-success .Toastify__toast-body svg {
+    fill: #d15292; /* Màu hồng cho icon */
+}

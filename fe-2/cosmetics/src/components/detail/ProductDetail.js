@@ -10,50 +10,79 @@ import "../../css/product.css";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 
-function ProductDetail() {
+function ProductDetail({flag}) {
   useEffect(() => {
     document.title = "Chi tiết sản phẩm";
   }, []);
   //tìm theo id
   const { id } = useParams();
 
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+  // const [cart, setCart] = useState(() => {
+  //   const savedCart = localStorage.getItem("cart");
+  //   return savedCart ? JSON.parse(savedCart) : [];
+  // });
+  const [cart, setCart] = useState();
+  useEffect(() => {
+    const res = localStorage.getItem("cart");
+    if (res) {
+      setCart(JSON.parse(res));
+    }
+  },[]);
+
+  // useEffect(() => {
+  //   setCart(cart);
+  // },[]);
+
+  //nếu đã đăng nhập
+  useEffect(() => {
+    const idAccount = localStorage.getItem("id");
+    if (idAccount) {
+      console.log(idAccount);
+      getListCartFromData(idAccount);
+    }
+  }, [flag]);
+
+  const getListCartFromData = async (idAccount) => {
+    try {
+      const res = await productService.getListCartFromData(idAccount);
+      console.log(res);
+      setCart(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
+      console.log("ds");
+    }
+    if (!savedCart) {
       const parsedCart = JSON.parse(savedCart);
       setCart(parsedCart);
-      const totalCount = parsedCart.reduce(
-        (total, item) => total + item.quantity,
-        0
-      );
-      setCartItemCount(totalCount);
+      if (Array.isArray(parsedCart)) {
+        const totalCount = parsedCart.reduce(
+          (total, item) => total + item.quantity,
+          0
+        );
+        setCartItemCount(totalCount);
+      }
     }
   }, [cartItemCount]);
 
-  const addToCart = (product) => {
-    console.log(product);
-    const index = cart.findIndex((item) => item.id === product.id);
 
-    if (index !== -1) {
-      const data = [...cart];
-      data[index].quantity += count;
-      console.log(count);
-      setCart(data);
-    } else {
-      setCart([...cart, { ...product, quantity: count }]);
-    }
-  };
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-    const totalCount = cart.reduce((total, item) => total + item.quantity, 0);
-    setCartItemCount(totalCount);
+    if (Array.isArray(cart)) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+      const totalCount = cart.reduce((total, item) => total + item.quantity, 0);
+      setCartItemCount(totalCount);
+    } else {
+      // localStorage.setItem("cart", JSON.stringify(cart));
+      setCartItemCount(0);
+      console.log("sc");
+    }
   }, [cart]);
 
   const [product, setProduct] = useState();
@@ -71,8 +100,92 @@ function ProductDetail() {
 
   let [count, setCount] = useState(1);
   const increCount = () => {
-    setCount(count + 1);
+    console.log(product);
+    //kiểm tra điều kiện số lượng sản phẩm
+    if (count < product.cosmeticsSize.quantity) {
+      setCount(count + 1);
+    }
   };
+
+  //trường hợp chưa đnăg nhập thì thêm vào cart bằng cách
+  const addToCart = (product) => {
+    console.log(product);
+    debugger
+    const idAccount = localStorage.getItem("id");
+    console.log(idAccount);
+    if(idAccount == null){
+      console.log("yyyy");
+      console.log(cart);
+      if (Array.isArray(cart)) {
+        const index = cart.findIndex((item) => item.id === product.id);
+        if (index !== -1) {
+          const data = [...cart];
+          data[index].quantity += count;
+          console.log(count);
+          setCart(data);
+        } else {
+          setCart([...cart, { ...product, quantity: count }]);
+          console.log(count);
+        }
+      } else {
+        setCart([{ ...product, quantity: count }]);
+        console.log(count);
+
+      }
+    }  else{
+
+    }
+  };
+  //trường hợp đã đăng nhập
+  const [productListDto, setProducListDto] = useState();
+
+  useEffect(() => {
+    debugger
+    const idAccount = localStorage.getItem("id");
+    console.log(idAccount);
+    console.log(cart);
+    if (product &&idAccount) {
+      console.log("ji");
+      const newListDto = {
+        id: null,
+        total: product.cosmeticsSize.price,
+        idAccount: idAccount,
+        idBill: null,
+        quantity: count,
+        idCosmeticsSize: product.cosmeticsSize.id,
+      }
+      const arr = [];
+      arr.push(newListDto)
+      console.log(newListDto);
+      setProducListDto(arr);}
+    }
+  , [count,flag]);
+
+  useEffect(() => {
+    getListCart(productListDto);
+  }, [productListDto]);
+
+  //prop
+
+  //lấy listcart
+  const [newCart,setNewCart] = useState();
+  const getListCart = async (productListDto) => {
+    console.log(productListDto);
+    try {
+      const res = await productService.getListCart(productListDto);
+      // localStorage.removeItem("cart");
+      setNewCart(res);
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  
+  
+
+  
+
   const decreaseQuantity = () => {
     if (count > 1) {
       setCount(count - 1);
@@ -80,10 +193,18 @@ function ProductDetail() {
   };
   const handleQuantityChange = (event) => {
     const newCount = parseInt(event.target.value);
-    if (!isNaN(newCount) && newCount >= 1) {
+    if (
+      !isNaN(newCount) &&
+      newCount >= 1 &&
+      newCount < product.cosmeticsSize.quantity
+    ) {
       setCount(newCount);
+      // }
+    } else {
+      //thông báo nhập quá số lượng sản phẩm
     }
   };
+
   //format tiền
   const formattedPrice = (price) => {
     // Định dạng giá tiền thành VNĐ
@@ -100,7 +221,6 @@ function ProductDetail() {
 
   const getProductSameType = async () => {
     const res = await productService.getProductSameType(id);
-    console.log(res);
     setProductSameType(res);
   };
 
@@ -108,34 +228,10 @@ function ProductDetail() {
   const [productImages, setProductImages] = useState([]);
   const imageListRef = ref(storage, `images/${id}`);
 
-  // const navigate = useNavigate();
-  // function extractIdFromLocation(location) {
-  //   if (location && location.pathname) {
-  //     const path = location.pathname;
-  //     const parts = path.split('/');
-  //     return parts[parts.length - 1];
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   const id = extractIdFromLocation(navigate); // Hàm để lấy id từ đường dẫn (ví dụ: "/product/2" -> id = 2)
-  //   const imageListRef = ref(storage, `images/${id}`);
-
-  //   listAll(imageListRef).then((res) => {
-  //     const urls = [];
-  //     res.items.forEach((item) => {
-  //       getDownloadURL(item).then((url) => {
-  //         urls.push(url);
-  //       });
-  //     });
-  //     setProductImages(urls);
-  //   });
-  // }, [navigate]);
   useEffect(() => {
     listAll(imageListRef).then((res) => {
       console.log(res);
       res.items.forEach((item) => {
-        console.log(item);
         getDownloadURL(item).then((url) => {
           setProductImages((prev) => [...prev, url]);
         });
@@ -164,7 +260,7 @@ function ProductDetail() {
             {product && (
               <>
                 <div className="col-lg-9">
-                  <div className="d-flex">
+                  <div className="d-flex custom-detail">
                     <div className="col-lg-7 col-md-12">
                       <section id="banner">
                         <div className="container" id="detail-product">
@@ -201,27 +297,19 @@ function ProductDetail() {
                               </li>
                             ))}
                           </ol>
-
-                          {/* <Carousel>
-                        {productImages.map((image, index) => (
-                          <Carousel.Item>
-                            <img
-                              src={image}
-                              alt={`Product ${id} Image ${index + 1}`}
-                              style={{ width: "100%", height: "auto" }}
-                            />
-                          </Carousel.Item>
-                        ))}
-                      </Carousel> */}
                         </div>
                       </section>
                     </div>
                     <div className="col-lg-5 col-md-12">
                       <h4>{product.product.name}</h4>
                       <div>{product.product.description}</div>
-                      {/* <h3 style={{ color: "red" }}>
-                    {formattedPrice(product.product.price)}
-                  </h3> */}
+                      <br></br>
+                      <div className="d-flex">
+                        <h6>Giá: </h6>
+                        <h6 style={{ color: "red" }}> 
+                          {formattedPrice(product.cosmeticsSize.price)}
+                        </h6>
+                      </div>
                       <div>
                         {productSameType && productSameType.length > 1 && (
                           <>
@@ -249,7 +337,7 @@ function ProductDetail() {
                                     )
                                   }
                                 >
-                                  <a href={`/product/${item.id}`}>
+                                  <Link to={`/product/${item.id}`}>
                                     <Card className="my-card">
                                       <div className="img-container">
                                         <Card.Img
@@ -258,7 +346,7 @@ function ProductDetail() {
                                         />
                                       </div>
                                     </Card>
-                                  </a>
+                                  </Link>
                                 </Col>
                               </>
                             ))}
@@ -326,19 +414,26 @@ function ProductDetail() {
                           <img src={productImages[0]} width="60%"></img>
                           <div>
                             <h3>Thông số sản phẩm</h3>
-                            <table class="table table-bordered">
+                            <table className="table table-bordered">
                               <thead>
                                 <tr>
-                                  <td scope="col" className="col-4">Thương hiệu</td>
-                                  <td scope="col" className="col-8">{product.product.producer.name}</td>                                 
+                                  <td scope="col" className="col-4">
+                                    Thương hiệu
+                                  </td>
+                                  <td scope="col" className="col-8">
+                                    {product.product.producer.name}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody>
                                 <tr>
-                                  <td scope="col" className="col-4">Xuất xứ</td>
-                                  <td scope="col" className="col-8">{product.product.producer.origin}</td>                              
-                                 
-                                </tr>                                
+                                  <td scope="col" className="col-4">
+                                    Xuất xứ
+                                  </td>
+                                  <td scope="col" className="col-8">
+                                    {product.product.producer.origin}
+                                  </td>
+                                </tr>
                               </tbody>
                             </table>
                           </div>
