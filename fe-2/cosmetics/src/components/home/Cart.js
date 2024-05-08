@@ -232,7 +232,7 @@ function Cart() {
             </div>
             <br></br>
             <div className="row">
-              <Link to={"auth/login"}>
+              <Link to={"/checkout"}>
                 <button className="btn btn-custom">Tiến hành thanh toán</button>
               </Link>
             </div>

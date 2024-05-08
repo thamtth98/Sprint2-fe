@@ -101,7 +101,7 @@ function ProductDetail({flag}) {
   let [count, setCount] = useState(1);
   const increCount = () => {
     //kiểm tra điều kiện số lượng sản phẩm
-    if (count <= product.cosmeticsSize.quantity) {
+    if (count < product.cosmeticsSize.quantity) {
       setCount(count + 1);
     }
   };
@@ -114,10 +114,14 @@ function ProductDetail({flag}) {
         const index = cart.findIndex((item) => item.id === product.id);
         if (index !== -1) {
           const data = [...cart];
-          if( count >= product.cosmeticsSize.quantity - data[index].quantity){
+          if( count <= product.cosmeticsSize.quantity - data[index].quantity){
             data[index].quantity += count;
             setCart(data);
             toast.success("Thêm vào giỏ hàng thành công!!", {
+              className: "custom-toast-success",
+            });
+          }else{
+            toast.error("Quá số lượng sản phẩm còn lại!!", {
               className: "custom-toast-success",
             });
           }
@@ -153,6 +157,7 @@ function ProductDetail({flag}) {
         idAccount: idAccount,
         idBill: null,
         quantity: count,
+        quantityReal: product.cosmeticsSize.quantity,
         idCosmeticsSize: product.cosmeticsSize.id,
       }
       const arr = [];

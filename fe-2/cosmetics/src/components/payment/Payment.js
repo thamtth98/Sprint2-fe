@@ -10,45 +10,34 @@ export default function CheckoutSuccessfully() {
   const navigate = useNavigate();
   const [resultPayment, setResultPayment] = useState("");
 
-  // useEffect(() => {
-  //   console.log(userInfo.id);
-  //   if (userInfo.username) {
-  //     getListCartFromData().then((res) => {
-  //       const size = res.reduce((c, cart) => {
-  //         return c + cart.quantity;
-  //       }, 0);
-  //       dispatch(cartActions.setCartSize(size));
-  //     });
-  //   }
-  // }, [userInfo.username]);
+  
   useEffect(() => {
-    console.log("tham khung");
-    const setPaymentOk = async () => {
-      paymentService.getInfo().then((res) => {
+    console.log("Gọi API thanh toán");
+    const fetchPaymentInfo = async () => {
+      try {
+        const res = await paymentService.getInfo();
         const id = parseInt(res.id);
         const searchParams = new URLSearchParams(window.location.search);
         const status = searchParams.get(`vnp_TransactionStatus`);
-        axiosCof
-          .get(`http://localhost:8080/auth/payment_info/${id}`, {
-            params: { status: status },
-          })
-          .then((re) => {
-            setResultPayment(re.data);
-            if (resultPayment === "success") {
-              navigate(`/`);
-              toast("Thanh toán thành công");
-            } else {
-              if (re.data === "error") {
-                navigate(`/cart`);
-                toast(
-                  "Thanh toán đã bị gián đoạn hoặc thất bại!Vui lòng thử lại"
-                );
-              }
-            }
-          });
-      });
+        const re = await axiosCof.get(`http://localhost:8080/auth/payment_info/${id}`, {
+          params: { status: status },
+        });
+        setResultPayment(re.data);
+      } catch (error) {
+        console.error("Lỗi khi gọi API thanh toán:", error);
+      }
     };
+    fetchPaymentInfo();
+  }, []);
 
-    setPaymentOk();
+  useEffect(() => {
+    console.log("Xử lý kết quả thanh toán");
+    if (resultPayment === "success") {
+      navigate(`/`);
+      toast("Thanh toán thành công");
+    } else if (resultPayment === "error") {
+      navigate(`/cart`);
+      toast("Thanh toán đã bị gián đoạn hoặc thất bại!Vui lòng thử lại");
+    }
   }, [resultPayment]);
 }

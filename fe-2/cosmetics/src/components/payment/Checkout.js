@@ -5,6 +5,7 @@ import { createPayment } from "../../service/paymentService";
 import * as paymentService from "../../service/paymentService";
 import * as productService from "../../service/productService";
 import { toast } from "react-toastify";
+import Header from "../home/Header";
 
 const initPaymentValue = {
   paymentStatusId: 2,
@@ -83,6 +84,7 @@ function Checkout() {
 
   return (
     <>
+    <Header></Header>
       <div className=" p-5 shadow-0 col-12 row">
         <div className="col-8 row border mb-5">
           <div className="col-12">

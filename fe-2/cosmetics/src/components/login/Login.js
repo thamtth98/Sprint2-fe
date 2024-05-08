@@ -50,6 +50,24 @@ function Login({ changeFlag }) {
   const [cart, setCart] = useState();
   const [cartFromLocal,setCartFromLocal] = useState();
 
+  //láy cart từ DB để so sánh số lượng
+  const [cartDb,setCartDb] = useState();
+  useEffect(() => {
+    const idAccount = localStorage.getItem("id");
+    if (idAccount) {
+      getListCartFromData(idAccount);
+    }
+  }, [flag]);
+
+  const getListCartFromData = async (idAccount) => {
+    try {
+      const res = await productService.getListCartFromData(idAccount);
+      setCartDb(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     //lấy cart từ local lưu vào đây
     const res = localStorage.getItem("cart");
@@ -93,6 +111,7 @@ function Login({ changeFlag }) {
     console.log(idAccount);
     console.log(cart);
     if (cart && Array.isArray(cart)) {
+      
       const newListDto = cart.map((item) => {
         console.log(item);
         return {
