@@ -48,8 +48,10 @@ function Login({ changeFlag }) {
   //   return savedCart ? JSON.parse(savedCart) : null;
   // });
   const [cart, setCart] = useState();
+  const [cartFromLocal,setCartFromLocal] = useState();
 
   useEffect(() => {
+    //lấy cart từ local lưu vào đây
     const res = localStorage.getItem("cart");
     if (res) {
       console.log(res);
@@ -57,13 +59,40 @@ function Login({ changeFlag }) {
     }
   }, []);
 
+  const handleLogin = async () => {
+    try {
+      const init = {
+        username: username,
+        password: password,
+      };
+      const res = await productService.loginConfirm(init);
+      setAccounts(res);
+      const listCart = localStorage.getItem("cart");
+      console.log(cart);
+      if (res) {
+        localStorage.setItem("id", res.id);
+        localStorage.setItem("token", res.token);
+        console.log(flag);
+        navigate(-1);
+        toast.success("Đăng nhập thành công!!", {
+          className: "custom-toast-success",
+        });
+      } 
+    } catch (e) {
+      toast.error("Sai mật khẩu hoặc tài khoản!!", {
+        className: "custom-toast-success",
+      });
+    }
+  };
+
   //lấy giỏ hàng từ localStorage để gửi xúng BE
   const [productListDto, setProducListDto] = useState(initDto);
 
   useEffect(() => {
     const idAccount = localStorage.getItem("id");
     console.log(idAccount);
-    if (idAccount && cart && Array.isArray(cart)) {
+    console.log(cart);
+    if (cart && Array.isArray(cart)) {
       const newListDto = cart.map((item) => {
         console.log(item);
         return {
@@ -77,60 +106,46 @@ function Login({ changeFlag }) {
       });
       console.log(newListDto);
       setProducListDto(newListDto);
+      setFlag(true);
     }
-  }, []);
+  }, [accounts]);
 
   useEffect(() => {
-    getListCart(productListDto);
-  }, [productListDto]);
+    saveListCart(productListDto);
+    console.log(productListDto);
+  }, [flag]);
 
-  const getListCart = async (productListDto) => {
+  const saveListCart = async (productListDto) => {
     console.log(productListDto);
     const idAccount = localStorage.getItem("id");
-
     try {
-      if(idAccount){
-        console.log("uuu");
-        const res = await productService.getListCart(productListDto);
+        const res = await productService.saveListCart(productListDto);
+        console.log(res);
         localStorage.removeItem("cart");
         // setPageProduct(res);
-        console.log(res);
-      }
-     
     } catch (e) {
       console.log(e);
     }
   };
 
 
+  //lưu giỏ hàng khi đăng nhập
+  // useEffect(() => {
+  //   const idAccount = localStorage.getItem("id");
+  //   if (idAccount) {
+  //     getListCartFromData(idAccount);
+  //   }
+  // }, [productListDto]);
 
-  
-  const handleLogin = async () => {
-    try {
-      const init = {
-        username: username,
-        password: password,
-      };
-      const res = await productService.loginConfirm(init);
-      setAccounts(res);
-      const listCart = localStorage.getItem("cart");
-      if (res) {
-        localStorage.setItem("id", res.id);
-        localStorage.setItem("token", res.token);
-        changeFlag();
-        navigate(-1);
-        toast.success("Đăng nhập thành công!!", {
-          className: "custom-toast-success",
-        });
-      } else {
-        toast.error("Sai mật khẩu hoặc tài khoản!!", {
-          className: "custom-toast-success",
-        });
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  // const getListCartFromData = async (idAccount) => {
+  //   try {
+  //     const res = await productService.getListCartFromData(idAccount);
+  //     console.log(res);
+  //     setCart(res);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <>

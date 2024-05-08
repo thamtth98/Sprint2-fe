@@ -9,6 +9,8 @@ import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
 import "../../css/product.css";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
+import { toast } from "react-toastify";
+
 
 function ProductDetail({flag}) {
   useEffect(() => {
@@ -37,7 +39,6 @@ function ProductDetail({flag}) {
   useEffect(() => {
     const idAccount = localStorage.getItem("id");
     if (idAccount) {
-      console.log(idAccount);
       getListCartFromData(idAccount);
     }
   }, [flag]);
@@ -45,7 +46,6 @@ function ProductDetail({flag}) {
   const getListCartFromData = async (idAccount) => {
     try {
       const res = await productService.getListCartFromData(idAccount);
-      console.log(res);
       setCart(res);
     } catch (error) {
       console.log(error);
@@ -57,7 +57,6 @@ function ProductDetail({flag}) {
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
-      console.log("ds");
     }
     if (!savedCart) {
       const parsedCart = JSON.parse(savedCart);
@@ -76,76 +75,78 @@ function ProductDetail({flag}) {
   useEffect(() => {
     if (Array.isArray(cart)) {
       localStorage.setItem("cart", JSON.stringify(cart));
+      
       const totalCount = cart.reduce((total, item) => total + item.quantity, 0);
       setCartItemCount(totalCount);
     } else {
       // localStorage.setItem("cart", JSON.stringify(cart));
       setCartItemCount(0);
-      console.log("sc");
     }
   }, [cart]);
 
   const [product, setProduct] = useState();
 
   //lấy product theo id
+
+  const [isProductLoaded, setIsProductLoaded] = useState(false);
   useEffect(() => {
     getProductAddToCart();
-  }, [id]);
+  }, []);
 
   const getProductAddToCart = async () => {
     const res = await productService.getProductAddToCart(id);
-    console.log(res);
     setProduct(res);
   };
 
   let [count, setCount] = useState(1);
   const increCount = () => {
-    console.log(product);
     //kiểm tra điều kiện số lượng sản phẩm
-    if (count < product.cosmeticsSize.quantity) {
+    if (count <= product.cosmeticsSize.quantity) {
       setCount(count + 1);
     }
   };
 
   //trường hợp chưa đnăg nhập thì thêm vào cart bằng cách
-  const addToCart = (product) => {
-    console.log(product);
-    debugger
+  const addToCart = (product) => {    
     const idAccount = localStorage.getItem("id");
-    console.log(idAccount);
     if(idAccount == null){
-      console.log("yyyy");
-      console.log(cart);
       if (Array.isArray(cart)) {
         const index = cart.findIndex((item) => item.id === product.id);
         if (index !== -1) {
           const data = [...cart];
-          data[index].quantity += count;
-          console.log(count);
-          setCart(data);
+          if( count >= product.cosmeticsSize.quantity - data[index].quantity){
+            data[index].quantity += count;
+            setCart(data);
+            toast.success("Thêm vào giỏ hàng thành công!!", {
+              className: "custom-toast-success",
+            });
+          }
+          
         } else {
           setCart([...cart, { ...product, quantity: count }]);
-          console.log(count);
+          toast.success("Thêm vào giỏ hàng thành công!!", {
+            className: "custom-toast-success",
+          });
         }
       } else {
         setCart([{ ...product, quantity: count }]);
-        console.log(count);
+        toast.success("Thêm vào giỏ hàng thành công!!", {
+          className: "custom-toast-success",
+        });
 
       }
     }  else{
+      setIsProductLoaded(true);
 
     }
   };
   //trường hợp đã đăng nhập
   const [productListDto, setProducListDto] = useState();
 
-  useEffect(() => {
-    debugger
+  useEffect(() => {    
     const idAccount = localStorage.getItem("id");
-    console.log(idAccount);
-    console.log(cart);
-    if (product &&idAccount) {
-      console.log("ji");
+    
+    if (product &&idAccount && isProductLoaded) {
       const newListDto = {
         id: null,
         total: product.cosmeticsSize.price,
@@ -156,35 +157,36 @@ function ProductDetail({flag}) {
       }
       const arr = [];
       arr.push(newListDto)
-      console.log(newListDto);
-      setProducListDto(arr);}
+      setProducListDto(arr);
+      setIsProductLoaded(true);
     }
-  , [count,flag]);
+    }
+  , [product,isProductLoaded]);
 
-  useEffect(() => {
-    getListCart(productListDto);
-  }, [productListDto]);
+  useEffect(() => {    
+    saveListCart(productListDto);
+  }, [productListDto,flag]);
 
   //prop
 
   //lấy listcart
   const [newCart,setNewCart] = useState();
-  const getListCart = async (productListDto) => {
-    console.log(productListDto);
+  const saveListCart = async (productListDto) => {
     try {
-      const res = await productService.getListCart(productListDto);
+      const res = await productService.saveListCart(productListDto);
       // localStorage.removeItem("cart");
       setNewCart(res);
-      console.log(res);
+      if(res.status === 200){
+        toast.success("Thêm vào giỏ hàng thành công!!", {
+          className: "custom-toast-success",
+        });
+      }
+    
     } catch (e) {
       console.log(e);
     }
   };
 
-  
-  
-
-  
 
   const decreaseQuantity = () => {
     if (count > 1) {
@@ -230,7 +232,7 @@ function ProductDetail({flag}) {
 
   useEffect(() => {
     listAll(imageListRef).then((res) => {
-      console.log(res);
+
       res.items.forEach((item) => {
         getDownloadURL(item).then((url) => {
           setProductImages((prev) => [...prev, url]);

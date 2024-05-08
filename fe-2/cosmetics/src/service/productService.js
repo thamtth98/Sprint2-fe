@@ -1,4 +1,3 @@
-import axios from "axios";
 import { axiosCof } from "../config/axiosConfig";
 export const getAll = async (pageContract) => {
   try {
@@ -35,13 +34,15 @@ export const getProductSameType = async (id) => {
     console.log(e);
   }
 };
-export const getListCart = async (productListDto) => {
+export const saveListCart = async (productListDto) => {
+  console.log(productListDto);
   try {
     const res = await axiosCof.post(
       `http://localhost:8080/cart/addToCart`,
       productListDto
     );
-    return res.data;
+    console.log(res, "abc");
+    return res;
   } catch (e) {
     console.log(e);
   }
