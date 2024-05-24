@@ -11,8 +11,7 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import { toast } from "react-toastify";
 
-
-function ProductDetail({flag}) {
+function ProductDetail({ flag }) {
   useEffect(() => {
     document.title = "Chi tiết sản phẩm";
   }, []);
@@ -29,7 +28,7 @@ function ProductDetail({flag}) {
     if (res) {
       setCart(JSON.parse(res));
     }
-  },[]);
+  }, []);
 
   // useEffect(() => {
   //   setCart(cart);
@@ -71,11 +70,10 @@ function ProductDetail({flag}) {
     }
   }, [cartItemCount]);
 
-
   useEffect(() => {
     if (Array.isArray(cart)) {
       localStorage.setItem("cart", JSON.stringify(cart));
-      
+
       const totalCount = cart.reduce((total, item) => total + item.quantity, 0);
       setCartItemCount(totalCount);
     } else {
@@ -107,25 +105,24 @@ function ProductDetail({flag}) {
   };
 
   //trường hợp chưa đnăg nhập thì thêm vào cart bằng cách
-  const addToCart = (product) => {    
+  const addToCart = (product) => {
     const idAccount = localStorage.getItem("id");
-    if(idAccount == null){
+    if (idAccount == null) {
       if (Array.isArray(cart)) {
         const index = cart.findIndex((item) => item.id === product.id);
         if (index !== -1) {
           const data = [...cart];
-          if( count <= product.cosmeticsSize.quantity - data[index].quantity){
+          if (count <= product.cosmeticsSize.quantity - data[index].quantity) {
             data[index].quantity += count;
             setCart(data);
             toast.success("Thêm vào giỏ hàng thành công!!", {
               className: "custom-toast-success",
             });
-          }else{
+          } else {
             toast.error("Quá số lượng sản phẩm còn lại!!", {
               className: "custom-toast-success",
             });
           }
-          
         } else {
           setCart([...cart, { ...product, quantity: count }]);
           toast.success("Thêm vào giỏ hàng thành công!!", {
@@ -137,20 +134,18 @@ function ProductDetail({flag}) {
         toast.success("Thêm vào giỏ hàng thành công!!", {
           className: "custom-toast-success",
         });
-
       }
-    }  else{
+    } else {
       setIsProductLoaded(true);
-
     }
   };
   //trường hợp đã đăng nhập
   const [productListDto, setProducListDto] = useState();
 
-  useEffect(() => {    
+  useEffect(() => {
     const idAccount = localStorage.getItem("id");
-    
-    if (product &&idAccount && isProductLoaded) {
+
+    if (product && idAccount && isProductLoaded) {
       const newListDto = {
         id: null,
         total: product.cosmeticsSize.price,
@@ -159,39 +154,36 @@ function ProductDetail({flag}) {
         quantity: count,
         quantityReal: product.cosmeticsSize.quantity,
         idCosmeticsSize: product.cosmeticsSize.id,
-      }
+      };
       const arr = [];
-      arr.push(newListDto)
+      arr.push(newListDto);
       setProducListDto(arr);
       setIsProductLoaded(true);
     }
-    }
-  , [product,isProductLoaded]);
+  }, [product, isProductLoaded]);
 
-  useEffect(() => {    
+  useEffect(() => {
     saveListCart(productListDto);
-  }, [productListDto,flag]);
+  }, [productListDto, flag]);
 
   //prop
 
   //lấy listcart
-  const [newCart,setNewCart] = useState();
+  const [newCart, setNewCart] = useState();
   const saveListCart = async (productListDto) => {
     try {
       const res = await productService.saveListCart(productListDto);
       // localStorage.removeItem("cart");
       setNewCart(res);
-      if(res.status === 200){
+      if (res.status === 200) {
         toast.success("Thêm vào giỏ hàng thành công!!", {
           className: "custom-toast-success",
         });
       }
-    
     } catch (e) {
       console.log(e);
     }
   };
-
 
   const decreaseQuantity = () => {
     if (count > 1) {
@@ -237,7 +229,6 @@ function ProductDetail({flag}) {
 
   useEffect(() => {
     listAll(imageListRef).then((res) => {
-
       res.items.forEach((item) => {
         getDownloadURL(item).then((url) => {
           setProductImages((prev) => [...prev, url]);
@@ -259,7 +250,6 @@ function ProductDetail({flag}) {
 
   return (
     <>
-      <Header></Header>
       <div className="container py-2">
         <div>
           <h2>Chi tiết sản phẩm</h2>
@@ -313,7 +303,7 @@ function ProductDetail({flag}) {
                       <br></br>
                       <div className="d-flex">
                         <h6>Giá: </h6>
-                        <h6 style={{ color: "red" }}> 
+                        <h6 style={{ color: "red" }}>
                           {formattedPrice(product.cosmeticsSize.price)}
                         </h6>
                       </div>

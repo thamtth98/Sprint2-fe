@@ -14,16 +14,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import * as productService from "../../service/productService";
 import { useEffect, useState } from "react";
-import { Flag } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 
-function Login({ changeFlag }) {
-  const navigate = useNavigate();
+function Login({ isLogin, userLogin, changeFlagApp }) {
   //lấy accounts
   const [accounts, setAccounts] = useState({});
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [flag, setFlag] = useState(false);
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -42,11 +41,7 @@ function Login({ changeFlag }) {
     idCosmeticsSize: -1,
   };
 
-  // const [cart, setCart] = useState(() => {
-  //   const savedCart = localStorage.getItem("cart");
-  //   // console.log(savedCart);
-  //   return savedCart ? JSON.parse(savedCart) : null;
-  // });
+
   const [cart, setCart] = useState();
   const [cartFromLocal,setCartFromLocal] = useState();
 
@@ -54,7 +49,8 @@ function Login({ changeFlag }) {
   const [cartDb,setCartDb] = useState();
   useEffect(() => {
     const idAccount = localStorage.getItem("id");
-    if (idAccount) {
+    const token = localStorage.getItem("token");
+    if (idAccount&&token) {
       getListCartFromData(idAccount);
     }
   }, [flag]);
@@ -69,14 +65,16 @@ function Login({ changeFlag }) {
   };
 
   useEffect(() => {
+
     //lấy cart từ local lưu vào đây
     const res = localStorage.getItem("cart");
     if (res) {
       console.log(res);
       setCart(JSON.parse(res));
     }
-  }, []);
+  }, [accounts]);
 
+  
   const handleLogin = async () => {
     try {
       const init = {
@@ -85,16 +83,33 @@ function Login({ changeFlag }) {
       };
       const res = await productService.loginConfirm(init);
       setAccounts(res);
-      const listCart = localStorage.getItem("cart");
-      console.log(cart);
+  
       if (res) {
         localStorage.setItem("id", res.id);
         localStorage.setItem("token", res.token);
-        console.log(flag);
-        navigate(-1);
+        
+        const listCart = localStorage.getItem("cart");
+        if (listCart) {
+          const cart = JSON.parse(listCart);
+          const newListDto = cart.map((item) => {
+            return {
+              id: null,
+              total: item.cosmeticsSize.price,
+              idAccount: res.id,
+              idBill: null,
+              quantity: item.quantity,
+              idCosmeticsSize: item.id,
+            };
+          });
+          await saveListCart(newListDto);
+          localStorage.removeItem("cart");
+        }
+        
+        navigate("/");
         toast.success("Đăng nhập thành công!!", {
           className: "custom-toast-success",
         });
+        changeFlagApp();
       } 
     } catch (e) {
       toast.error("Sai mật khẩu hoặc tài khoản!!", {
@@ -102,6 +117,7 @@ function Login({ changeFlag }) {
       });
     }
   };
+  
 
   //lấy giỏ hàng từ localStorage để gửi xúng BE
   const [productListDto, setProducListDto] = useState(initDto);
@@ -148,24 +164,6 @@ function Login({ changeFlag }) {
   };
 
 
-  //lưu giỏ hàng khi đăng nhập
-  // useEffect(() => {
-  //   const idAccount = localStorage.getItem("id");
-  //   if (idAccount) {
-  //     getListCartFromData(idAccount);
-  //   }
-  // }, [productListDto]);
-
-  // const getListCartFromData = async (idAccount) => {
-  //   try {
-  //     const res = await productService.getListCartFromData(idAccount);
-  //     console.log(res);
-  //     setCart(res);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   return (
     <>
       <MDBContainer
@@ -207,25 +205,7 @@ function Login({ changeFlag }) {
 
             <MDBCard className="my-5 bg-glass">
               <MDBCardBody className="p-5">
-                {/* <MDBRow>
-                  <MDBCol col="6">
-                    <MDBInput
-                      wrapperClass="mb-4"
-                      label="First name"
-                      id="form1"
-                      type="text"
-                    />
-                  </MDBCol>
-
-                  <MDBCol col="6">
-                    <MDBInput
-                      wrapperClass="mb-4"
-                      label="Last name"
-                      id="form2"
-                      type="text"
-                    />
-                  </MDBCol>
-                </MDBRow> */}
+                
 
                 <MDBInput
                   wrapperClass="mb-4"
@@ -244,58 +224,11 @@ function Login({ changeFlag }) {
                   onChange={(e) => setPassword(e.target.value)}
                 />
 
-                {/* <div className="d-flex justify-content-center mb-4">
-                  <MDBCheckbox
-                    name="flexCheck"
-                    value=""
-                    id="flexCheckDefault"
-                    label="Subscribe to our newsletter"
-                  />
-                </div> */}
-
-                <MDBBtn className="w-100 mb-4" size="md" onClick={handleLogin}>
+            
+                <MDBBtn className="w-100 mb-4 custom-btn" size="md" onClick={handleLogin}>
                   Đăng nhập
                 </MDBBtn>
-
-                {/* <div className="text-center">
-                  <p>or sign up with:</p>
-
-                  <MDBBtn
-                    tag="a"
-                    color="none"
-                    className="mx-3"
-                    style={{ color: "#1266f1" }}
-                  >
-                    <MDBIcon fab icon="facebook-f" size="sm" />
-                  </MDBBtn>
-
-                  <MDBBtn
-                    tag="a"
-                    color="none"
-                    className="mx-3"
-                    style={{ color: "#1266f1" }}
-                  >
-                    <MDBIcon fab icon="twitter" size="sm" />
-                  </MDBBtn>
-
-                  <MDBBtn
-                    tag="a"
-                    color="none"
-                    className="mx-3"
-                    style={{ color: "#1266f1" }}
-                  >
-                    <MDBIcon fab icon="google" size="sm" />
-                  </MDBBtn>
-
-                  <MDBBtn
-                    tag="a"
-                    color="none"
-                    className="mx-3"
-                    style={{ color: "#1266f1" }}
-                  >
-                    <MDBIcon fab icon="github" size="sm" />
-                  </MDBBtn>
-                </div> */}
+                
               </MDBCardBody>
             </MDBCard>
           </MDBCol>

@@ -112,7 +112,6 @@ function ComesticsList() {
   }, [searchTerm]);
   return (
     <>
-      <Header />
       <div className="container py-2">
         <div className="d-flex">
           <div className="col-md-2 col-lg-2 my-4">

@@ -49,7 +49,6 @@ function Producer() {
   };
   return (
     <>
-      <Header/>
       <div className="container py-2">
         <h5 className="m-2">Thương hiệu</h5>
         <hr></hr>

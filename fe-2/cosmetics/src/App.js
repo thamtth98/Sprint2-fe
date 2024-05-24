@@ -19,44 +19,56 @@ import { Provider } from "react-redux";
 import { UserInfoProvider } from "./components/user/InfoUserContex";
 import CheckoutSuccessfully from "./components/payment/Payment";
 import * as paymentService from "../src/service/paymentService";
+import Header from "./components/home/Header";
+import { useSearchTermContext } from "../../cosmetics/src/components/search/SearchContext";
+import PersonalInfomation from "./components/user/PersonalInfomation";
+import BillHistory from "./components/home/BillHistory";
+
 
 function App() {
-  const [flag, setFlag] = useState(false);
-
+  const [isShowLogin, setIsShowLogin] = useState(false);
   const [userLogin, setUserLogin] = useState("");
+  const [flagApp, setFlagApp] = useState(false);
+  const [quantityCart, setQuantityCart] = useState(0);
   const [isLogin, setIsLogin] = useState(false);
-
-  const loadUserLogin = async () => {
-    try {
-      const res = await paymentService.getInfo();
-      setUserLogin(res);
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       loadUserLogin();
-      setIsLogin(true);
-
     } else {
       console.log("set false");
       setIsLogin(false);
       setUserLogin("unknown");
     }
-  }, [flag]);
+  }, [flagApp]);
 
-  const changeFlag = () => {
-    setFlag(!flag);
+  const changeFlagApp = () => {
+    setFlagApp(!flagApp);
   };
 
+  const loadUserLogin = async () => {
+    try {
+      const res = await paymentService.getInfo();
+      if (res) {
+        setUserLogin(res);
+        setIsLogin(true);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <>
       <ToastContainer />
       <BrowserRouter>
         <SearchTermProvider>
+          <Header
+            isLogin={isLogin}
+            userLogin={userLogin}
+            changeFlagApp={changeFlagApp}
+          ></Header>
+
           <UserInfoProvider>
             <Routes>
               <Route path="/" element={<Home />}></Route>
@@ -64,24 +76,33 @@ function App() {
               <Route path="/producer" element={<Producer />}></Route>
               <Route path="/list/:id" element={<ProducerDetail />}></Route>
               <Route path="/cart" element={<Cart />}></Route>
-              {isLogin ==true && (
+              {isLogin == true && (
                 <>
-                {console.log(isLogin)}
                   <Route
                     path="/paymentCart/:id"
                     element={<CheckoutSuccessfully />}
                   />
                   <Route path="/checkout" element={<Checkout />}></Route>
+                  <Route path="/info" element={<PersonalInfomation />}></Route>
+                  <Route path="/bill" element={<BillHistory userLogin={userLogin}/>}></Route>
+                  <Route path="/detailBill" element={<BillHistory userLogin={userLogin}/>}></Route>
                 </>
+                
               )}
 
               <Route
                 path="/product/:id"
-                element={<ProductDetail flag={flag} />}
+                element={<ProductDetail flagApp={flagApp} />}
               ></Route>
               <Route
                 path="/auth/login"
-                element={<Login changeFlag={changeFlag} />}
+                element={
+                  <Login
+                    isLogin={isLogin}
+                    userLogin={userLogin}
+                    changeFlagApp={changeFlagApp}
+                  />
+                }
               ></Route>
             </Routes>
           </UserInfoProvider>

@@ -3,7 +3,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import SplitButton from "react-bootstrap/SplitButton";
@@ -15,13 +15,20 @@ import * as myLogo from "../../img/logo5.png";
 import { useSearchTermContext } from "../search/SearchContext";
 import { Logout } from "../login/Logout";
 import { toast } from "react-toastify";
+import * as productService from "../../service/productService";
 
-function Header({ onSearch, logo }) {
+function Header({ onSearch, isLogin, userLogin, changeFlagApp }) {
   // const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   //search
   const { searchTerm, setSearchTerm } = useSearchTermContext();
   const [search, setSearch] = useState("");
+
+  //đổi tên
+  const [nameCurrentUser, setNameCurrentUser] = useState("");
+  useEffect(() => {
+    setNameCurrentUser(userLogin);
+  }, [userLogin, isLogin]);
 
   const handleChange = (event) => {
     setSearch(event.target.value);
@@ -34,15 +41,20 @@ function Header({ onSearch, logo }) {
   };
   //logout
   const onLogoutHandler = () => {
-    const idAccount = localStorage.getItem("id");
-    if (idAccount) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("id");
-      localStorage.removeItem("cart");
-      navigate("/");
-      toast.success("Đăng xuất thành công!!", {
-        className: "custom-toast-success",
-      });
+    try {
+      const res = localStorage.getItem("token");
+      if (res) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("id");
+        localStorage.removeItem("cart");
+        changeFlagApp();
+        navigate("/");
+        toast.success("Đăng xuất thành công!!", {
+          className: "custom-toast-success",
+        });
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
   return (
@@ -85,7 +97,7 @@ function Header({ onSearch, logo }) {
                       onChange={handleChange}
                       placeholder="Tìm kiếm sản phẩm, thương hiệu"
                     />
-                    <button type="submit">
+                    <button type="submit" className="btn">
                       <i class="bi bi-search-heart"></i>
                     </button>
                   </form>
@@ -168,20 +180,50 @@ function Header({ onSearch, logo }) {
               </Nav>
               <Nav>
                 {/* <Nav.Link href="#">GET PRO</Nav.Link> */}
-                <Nav.Link href="#">
-                  <Link to={"/auth/login"} >
-                    <i className="bi bi-person"></i>
-                  </Link>
-                </Nav.Link>
+                {isLogin ? (
+                  <Nav.Link href="#">
+                    {/* <Link to={"/auth/login"}>
+                      <i className="bi bi-person btn">
+                        <span>{userLogin.fullname}</span>
+                      </i> */}
+                      <Dropdown>
+                        <Dropdown.Toggle variant="" id="dropdown-basic">
+                        {userLogin.fullname}
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                          <Dropdown.Item >
+                          <Link to={"/info"}>
+                            Thông tin cá nhân
+                          </Link>
+                          </Dropdown.Item>
+                          
+                          <Dropdown.Item href="#/action-2">
+                          <Link to={"/bill"}>
+                            Lịch sử thanh toán
+                            </Link>
+                          </Dropdown.Item>
+                          <Dropdown.Item href="#/action-3" onClick={onLogoutHandler}>
+                            Đăng xuất
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    {/* </Link> */}
+                  </Nav.Link>
+                ) : (
+                  <Nav.Link href="#">
+                    <Link to={"/auth/login"}>
+                      <i className="bi bi-person btn"></i>
+                    </Link>
+                  </Nav.Link>
+                )}
 
                 <Nav.Link href="#">
                   <Link to={"/cart"}>
-                    <i className="bi bi-bag-heart"></i>
+                    <i className="bi bi-bag-heart btn"></i>
                   </Link>
                 </Nav.Link>
-                <Nav.Link href="#">
-                  <button onClick={onLogoutHandler}>Log out</button>
-                </Nav.Link>
+              
               </Nav>
             </Navbar.Collapse>
           </Container>

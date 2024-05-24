@@ -19,3 +19,6 @@ a{
 .custom-toast-success .Toastify__toast-body svg {
     fill: #d15292; /* Màu hồng cho icon */
 }
+.form-control:focus {
+    box-shadow: none !important;
+}

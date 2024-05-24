@@ -1,8 +1,8 @@
 import { axiosCof } from "../config/axiosConfig";
 
-export const createPayment = async (price,id) => {
-    const res = await axiosCof.get(
-      `http://localhost:8080/auth/createPay?price=${price}&id=${id}`
+export const createPayment = async (price,id, billDto) => {
+    const res = await axiosCof.post(
+      `http://localhost:8080/auth/createPay?price=${price}&id=${id}`,billDto
     );
     return res.data;
   };

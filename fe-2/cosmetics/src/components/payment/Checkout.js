@@ -46,6 +46,13 @@ function Checkout() {
       console.log(error);
     }
   };
+  //lấy thông tin khách hàng
+  const [userData, setUserData] = useState({
+    fullname: "",
+    phoneNumber: "",
+    address: "",
+    note: "",
+  });
 
   useEffect(() => {
     if (carts) {
@@ -59,11 +66,20 @@ function Checkout() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPaymentValue({ ...paymentValue, [name]: value });
+    setUserData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
   const handlePayment = () => {
-    console.log(userInfo);
-    createPayment(totalPrice, userInfo.id)
+    //tao
+    const billDto = {
+      username: userData.username,
+      address: userData.address
+    };
+    console.log(billDto);
+    createPayment(totalPrice, userInfo.id,billDto)
       .then((res) => {
         window.location.href = res;
       })
@@ -84,7 +100,6 @@ function Checkout() {
 
   return (
     <>
-    <Header></Header>
       <div className=" p-5 shadow-0 col-12 row">
         <div className="col-8 row border mb-5">
           <div className="col-12">
@@ -95,11 +110,14 @@ function Checkout() {
               <div className="form-control" style={{ border: "none" }}>
                 <small>Họ và tên</small>
                 <input
+                  name="fullname"
+                  // value={userData.fullname}
                   type="text"
                   style={{ fontWeight: "bold" }}
                   placeholder="Nguyen Van A"
                   className="form-control"
                   defaultValue={userInfo.fullname}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -107,18 +125,22 @@ function Checkout() {
               <div className="form-control" style={{ border: "none" }}>
                 <small>Số điện thoại</small>
                 <input
+                  name="phoneNumber"
+                  // value={userData.phoneNumber}
                   type="text"
                   style={{ fontWeight: "bold" }}
                   placeholder="09xxxxxxxx"
                   className="form-control"
                   defaultValue={userInfo.phoneNumber}
+                  onChange={handleChange}
                 />
               </div>
             </div>
             <div className="col-6 mt-2">
               <div className="form-control" style={{ border: "none" }}>
                 <small>Địa chỉ nhận hàng</small>
-                <textarea
+                <input
+                  type="text"
                   style={{
                     fontWeight: "bold",
                     overflow: "hidden",
@@ -127,6 +149,9 @@ function Checkout() {
                   placeholder="Số nhà, địa chỉ"
                   className="form-control"
                   defaultValue={userInfo.address}
+                  name="address"
+                  // value={userData.address}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -139,6 +164,7 @@ function Checkout() {
                   placeholder="abc@gmail.com"
                   className="form-control"
                   defaultValue={userInfo.email}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -147,17 +173,15 @@ function Checkout() {
               <h4>Ghi chú cho đơn hàng</h4>
               <div className="mt-3">
                 <div className="form p-2">
-                  <small>
-                    Hãy để lại lời nhắn cho nhân viên giao hàng và cửa hàng(nếu
-                    có):
-                  </small>
-                  <textarea
+                  
+                  <input
                     className="form-control"
                     id="textAreaExample1"
                     style={{ overflow: "hidden", resize: "none" }}
-                    name="messageToSeller"
                     onChange={handleChange}
-                  ></textarea>
+                    name="note"
+                    value={userData.note}
+                  ></input>
                 </div>
               </div>
             </div>
@@ -171,8 +195,9 @@ function Checkout() {
                 Hủy
               </button>
               <button
-                className="btn btn-success shadow-0 border"
+                className="btn btn-custom shadow-0 border"
                 onClick={handlePayment}
+                style={{backgroundColor:'red'}}
               >
                 Thanh toán
               </button>
@@ -212,7 +237,7 @@ function Checkout() {
             <hr />
             <h6 className="text-dark my-4">Sản phẩm đã chọn</h6>
 
-            {carts.map((cart,index) => (
+            {carts.map((cart, index) => (
               <div className="d-flex align-items-center mb-4" key={index}>
                 <div className="me-3 position-relative">
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">

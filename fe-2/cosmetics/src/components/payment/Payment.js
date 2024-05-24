@@ -11,6 +11,7 @@ export default function CheckoutSuccessfully() {
   const [resultPayment, setResultPayment] = useState("");
 
   
+  
   useEffect(() => {
     console.log("Gọi API thanh toán");
     const fetchPaymentInfo = async () => {

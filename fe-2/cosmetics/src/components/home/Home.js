@@ -61,7 +61,6 @@ function Home() {
   return (
     <>
       <div>
-        <Header />
         <section id="banner" style={{ background: ` #ffeaf0` }}>
           <div className="container">
             <Carousel interval={5000} controls={false}>
@@ -177,7 +176,6 @@ function Home() {
           </div>
         </section>
         <Container>
-          {/* <h4>Bán chạy</h4> */}
           <Row>
             <img
               src="https://bizweb.dktcdn.net/100/433/383/themes/829831/assets/section_hot_banner.png?1638681267234"

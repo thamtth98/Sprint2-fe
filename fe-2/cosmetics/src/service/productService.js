@@ -19,10 +19,10 @@ export const getAllProducer = async () => {
 export const getProductAddToCart = async (id) => {
   try {
     const res = await axiosCof.get(`http://localhost:8080/product/${id}`);
-    console.log(res.data);
     return res.data;
   } catch (e) {
     console.log(e);
+    
   }
 };
 
@@ -41,7 +41,6 @@ export const saveListCart = async (productListDto) => {
       `http://localhost:8080/cart/addToCart`,
       productListDto
     );
-    console.log(res, "abc");
     return res;
   } catch (e) {
     console.log(e);
@@ -74,7 +73,6 @@ export const getListCartFromData = async (idAccount) => {
     const res = await axiosCof.get(
       `http://localhost:8080/cart/getAllList?id= ${idAccount}`
     );
-    console.log(res.data);
     return res.data;
   } catch (e) {
     console.log(e);
@@ -83,9 +81,21 @@ export const getListCartFromData = async (idAccount) => {
 
 export const logout = async () => {
   try {
-    const res = await axiosCof.post("http://localhost:8080/api/auth/logout");
-    console.log(res.data);
-    return res.data;
+      const res = await axiosCof.get(`http://localhost:8080/auth/logout`);
+      console.log(res.data)
+      return res.data;
+  } catch (e) {
+      console.log(e);
+  }
+}
+
+export const saveQuantity = async (idCosmeticsSize,quantity) => {
+  console.log(idCosmeticsSize,quantity);
+  try {
+    const res = await axiosCof.post(
+      `http://localhost:8080/product/${idCosmeticsSize}/${quantity}`      
+    );
+    return res;
   } catch (e) {
     console.log(e);
   }

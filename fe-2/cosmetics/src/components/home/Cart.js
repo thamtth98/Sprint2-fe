@@ -5,17 +5,15 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as productService from "../../service/productService";
+import * as cartService from "../../service/cartService";
+import { delToCart } from "../../service/cartService";
 
 function Cart() {
   useEffect(() => {
     document.title = "Giỏ hàng";
   }, []);
 
-  // const [cart, setCart] = useState(() => {
-  //   const savedCart = localStorage.getItem("cart");
-  //   // console.log(savedCart);
-  //   return savedCart ? JSON.parse(savedCart) : [];
-  // });
+ 
 
   const [cart, setCart] = useState();
 
@@ -24,16 +22,19 @@ function Cart() {
     if (res) {
       setCart(JSON.parse(res));
     }
-  },[]);
+  }, []);
 
   // useEffect(() => {
   //   setCart(cart);
   // },[]);
 
+  const [idAccount, setIdAccount] = useState();
   //nếu đã đăng nhập
   useEffect(() => {
     const idAccount = localStorage.getItem("id");
-    if (idAccount) {
+    setIdAccount(idAccount);
+    const token = localStorage.getItem("token");
+    if (idAccount && token) {
       getListCartFromData(idAccount);
     }
   }, []);
@@ -45,6 +46,31 @@ function Cart() {
       setCart(res);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleDel = async (item) => {
+    const idAccount = localStorage.getItem("id");
+    const token = localStorage.getItem("token");
+    const delToCart = async (id) => {
+      try {
+        const res = await cartService.delToCart(id);
+        getListCartFromData(idAccount);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (idAccount && token) {
+      console.log(item);
+      await delToCart(item.cosmeticsSize.id);
+      const updatedCart = cart.filter(
+        (value) => value.id !== item.cosmeticsSize.id
+      );
+      setCart(updatedCart);
+    } else {
+      const newCart = cart.filter((value) => value !== item);
+      setCart(newCart);
     }
   };
 
@@ -64,33 +90,72 @@ function Cart() {
   //tong giam gia
   const [discount, setDiscount] = useState(0);
 
-  const handelIncre = (item) => {
+  const handelIncre = async (item) => {
+    console.log(item);
     const index = cart.findIndex((obj) => obj.id === item.id);
     const product = cart.find((obj) => obj.id === item.id);
-    if (index !== -1) {
-      const data = [...cart];
-      //kiểm tra điều kiện quá số lượng
-      if (data[index].quantity < product.cosmeticsSize.quantity) {
-        data[index].quantity += 1;
-        setCart(data);
-      }
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
-  };
 
-  const handelDecre = (item) => {
-    const index = cart.findIndex((obj) => obj.id === item.id);
-    if (index !== -1) {
-      const data = [...cart];
-      //kieerm tra điều kiện số lượng 0
-      if (data[index].quantity > 1) {
-        data[index].quantity -= 1;
+    if(idAccount){
+      try {
+        if (index !== -1) {
+          const data = [...cart];
+          //kiểm tra điều kiện quá số lượng
+          if (data[index].quantity < product.cosmeticsSize.quantity) {
+            data[index].quantity += 1;
+            setCart(data);
+            await productService.saveQuantity(item.cosmeticsSize.id,data[index].quantity)
+            console.log(item.cosmeticsSize.id,data[index].quantity);
+          }
+        }
+      } catch (error) {
+        console.log(error);
       }
-      setCart(data);
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
+    }else{
+      if (index !== -1) {
+        const data = [...cart];
+        //kiểm tra điều kiện quá số lượng
+        if (data[index].quantity < product.cosmeticsSize.quantity) {
+          data[index].quantity += 1;
+          setCart(data);
+        }
+      } else {
+        setCart([...cart, { ...item, quantity: 1 }]);
+      }
     }
+    
+  };
+  
+
+  const handelDecre = async (item) => {
+    const index = cart.findIndex((obj) => obj.id === item.id);
+
+    if(idAccount){
+      if (index !== -1) {
+        const data = [...cart];
+        //kieerm tra điều kiện số lượng 0
+        if (data[index].quantity > 1) {
+          data[index].quantity -= 1;
+        }
+        setCart(data);
+        await productService.saveQuantity(item.cosmeticsSize.id,data[index].quantity);
+        console.log(item.cosmeticsSize.id,data[index].quantity);
+
+      } else {
+        setCart([...cart, { ...item, quantity: 1 }]);
+      }
+    }else{
+      if (index !== -1) {
+        const data = [...cart];
+        //kieerm tra điều kiện số lượng 0
+        if (data[index].quantity > 1) {
+          data[index].quantity -= 1;
+        }
+        setCart(data);
+      } else {
+        setCart([...cart, { ...item, quantity: 1 }]);
+      }
+    }
+  
   };
   //nhập số lượng
   //   const handleQuantityChange = (event) => {
@@ -104,18 +169,14 @@ function Cart() {
   //     //thông báo nhập quá số lượng sản phẩm
   //   }
   // };
-  const handleDel = (item) => {
-    const newCart = cart.filter((value) => value !== item);
-    setCart(newCart);
-  };
+
   const handleConfirm = (cart) => {
     console.log(cart);
   };
 
   useEffect(() => {
-    if(cart){
+    if (cart) {
       localStorage.setItem("cart", JSON.stringify(cart));
-
     }
     // const totalCount = cart.reduce((total, item) => total + item.quantity, 0);
     // setCartItemCount(totalCount);
@@ -130,7 +191,6 @@ function Cart() {
 
   return (
     <>
-      <Header />
       <div className="container py-2">
         <div className="d-flex">
           <div className="col-8">
@@ -170,15 +230,6 @@ function Cart() {
                           -
                         </button>
                         {item.quantity}
-
-                        {/* <input
-                        type="number"
-                        value={item.quantity}
-                        onChange={handleQuantityChange}
-                        style={{ width: "40px" }}
-                        min="1"
-                      ></input> */}
-
                         <button
                           className="btn btn-custom"
                           onClick={() => handelIncre(item)}
@@ -196,14 +247,14 @@ function Cart() {
                   ))
                 ) : (
                   <>
-                  <tr>
-                    
-                    <td>Chưa có gì trong giỏ hàng</td>
-                  </tr>
-                  <tr>
-                    
-                    <td><Link to={"/list"}>Tiếp tục mua hàng</Link></td>
-                  </tr>
+                    <tr>
+                      <td>Chưa có gì trong giỏ hàng</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <Link to={"/list"}>Tiếp tục mua hàng</Link>
+                      </td>
+                    </tr>
                   </>
                 )}
               </tbody>
@@ -228,13 +279,23 @@ function Cart() {
             <hr></hr>
             <div className="row">
               <div className="col-6">Tổng cộng</div>
-              {/* <div className="col-6">{formattedPrice(sum - discount)}</div> */}
+              <div className="col-6">{formattedPrice(sum - discount)}</div>
             </div>
             <br></br>
             <div className="row">
-              <Link to={"/checkout"}>
-                <button className="btn btn-custom">Tiến hành thanh toán</button>
-              </Link>
+              {idAccount ? (
+                <Link to={"/checkout"}>
+                  <button className="btn btn-custom">
+                    Tiến hành thanh toán
+                  </button>
+                </Link>
+              ) : (
+                <Link to={"/auth/login"}>
+                  <button className="btn btn-custom">
+                    Tiến hành thanh toán
+                  </button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
